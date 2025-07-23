@@ -1,12 +1,11 @@
 
 # Online invesment calculator
 
-**Build Preview:**
+**Build Preview (Tap on screen to demo):**
 
 [![Calculator](https://img.youtube.com/vi/N9p64Upw8OM/0.jpg)](https://youtu.be/N9p64Upw8OM)
 
 ---
-
 
 ## How to run this build:
 
