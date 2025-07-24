@@ -32,6 +32,7 @@ npm start
 ```
 - `npm install` will install all the necessary files and dependencies of react required to run the program. 
 - Then `npm start` will open the React app in your default web browser at http://localhost:3000.
+- Press `ctrl + c` two times to quit program. 
 
 ---
 
