@@ -24,7 +24,7 @@
 cd "invest-calc"
 ```
 
-4. **Run this command:**
+4. **Run this command with `Git-Bash`:**
 
 ```
 npm install
