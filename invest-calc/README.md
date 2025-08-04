@@ -5,6 +5,32 @@
 
 [![Calculator](https://img.youtube.com/vi/N9p64Upw8OM/0.jpg)](https://youtu.be/N9p64Upw8OM)
 
+## Purpose:
+- To allow users to estimate how their wealth will grow over time by entering their initial investment, annual contributions, expected rate of return and duration. Then, the program will visualize the growth each year.
+
+    - Initial Investment: The initial money invested by user. (e.g. $10,000)
+    - Annual investment: additonal money invested by user. (e.g. $1,200)
+    - Expected return: annuel rate of return on investment (%). (e.g. 7%)
+    - duration: years. (e.g. 10 years)
+
+**This project:**
+- Shows how compound interest and how small yearly payments add up over time.
+
+- Enables good decisions about savings and investments.
+
+- Enables good financial planning by estimating future investment growth if they consistently have investment inputs.
+
+- It’s a practical, real-world application that connects coding with finance, using logic, math, and user interaction to simulate currency growth over time.
+
+## File Overview
+
+- `App.jsx` — Main layout and logic hub; holds app state and renders components.
+- `Header.jsx` — Displays app logo and title.
+- `UserInput.jsx` — Accepts investment inputs (amount, rate, duration).
+- `Results.jsx` — Displays results in a formatted table.
+- `investment.js` — Core logic for calculating investment growth.
+- `index.css` — Stylesheet for layout and visual design.
+
 ---
 
 ## How to run this build:
@@ -127,6 +153,7 @@ return (
 - In order to pass the userInput values into `Results.jsx` component:
     - Move the `UserInput.jsx` component (`handleChange` and `userInput`) into the `App.jsx` component so that values can be passed into new created `Results.jsx` file
     - Move `import { useState } from 'react';` from `UserInput.jsx` to `App.jsx` also
+        - The reason for this move was to share the input data with Results.jsx, which is a sibling component. React best practices suggest lifting state up to the nearest common ancestor. Thus, I moved the state and handlers to App.jsx so both UserInput and Results could access and update shared data.
     - In `App.jsx`, update `<UserInput />` to `<UserInput userInput={userInput} onChange={handleChange} />` so that values in userInput / handleChange gets passed as a value to `Userinput.jsx` component 
 
 - Create an `investment.js` file that has these 4 variables for calculation:
