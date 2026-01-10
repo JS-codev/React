@@ -1,6 +1,9 @@
 ## Full-Stack Facility Booking System App
 
-- [Full Preview of the App](https://saf-facility-booking.netlify.app/)
+
+[![Facility-Booking-App](https://img.youtube.com/vi/01kIUFBTwe0/maxresdefault.jpg)](https://youtu.be/01kIUFBTwe0)
+
+ **Web Preview:** [Full Preview of the App](https://saf-facility-booking.netlify.app/)
 
 
 - Designed and developed a full-stack facility booking application using React.js, Supabase (PostgreSQL), and Netlify.
