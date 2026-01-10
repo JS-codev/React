@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+## Full-Stack Facility Booking System App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- [Full Preview of the App](https://saf-facility-booking.netlify.app/)
 
-## Available Scripts
 
-In the project directory, you can run:
+- Designed and developed a full-stack facility booking application using React.js, Supabase (PostgreSQL), and Netlify.
 
-### `npm start`
+- Built end-to-end automation using Supabase's full-stack capabilities: PostgreSQL triggers for data validation, and RLS for security.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Implemented a secure authentication system using JSON Web Tokens (JWT) with multi-role user management (clients/admins) and protected routing.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Designed an optimized database schema with more than 3 tables, establish relationships and and implemented complex SQL queries.
 
-### `npm test`
+- Built responsive UI with Tailwind CSS and deployed application using Netlify with environment configuration.
+ 
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## How to use:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+ _For Client Users:_
+1. **Register/Login:** 
+    - Create an account with your email and password.
+    - login if you already have an account.
+2. **Browse Facilities:** 
+    - View all available facilities with their current capacity and booking status from the drop down menu. 
+3. **Make a Booking:**
+    - Select a facility from the dropdown menu.
+    - Pick a date for your booking.
+    - Specify your time slot (start time to end time).
+    - Submit your booking request
+    - This requested facility will then be sent to the admin for approval.
+4. **Track Your Bookings:** 
+    - View all your pending, approved, and rejected bookings in one place.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+5. **Manage Bookings:** 
+    - Cancel pending or approved bookings as needed.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+ _For Admin Users:_
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Manage Facilities**: Add, edit, or remove facilities with custom capacity limits
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Review Approvals:** View all pending booking requests requiring approval
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Approve/Reject:** Quickly approve or reject booking requests with one click
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Monitor Usage:** See detailed booking history and facility utilization across all users
 
-## Learn More
+- **Full Control:** Delete bookings or facilities as needed with appropriate warnings
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## App features:
+**Core Functionality:**  
+- **User Booking System:** Allows clients to book facilities for specific time periods.  
+- **Capacity Management:** Enforces facility capacity limits to prevent overbooking.  
+- **Time Slot Validation:** Prevents overlapping bookings with intelligent time conflict detection.  
+- **Approval Workflow:** Implements a two-step process where all bookings require admin approval.  
+- **Real-time Updates:** Shows live availability and booking status changes.  
 
-### Code Splitting
+**Admin Capabilities:**  
+- **Facility Management:** Create and configure multiple facilities with custom capacities. 
+- **Booking Oversight:** Monitor all booking activity across the entire platform.  
+- **User Management:** View all registered users and their booking history  
+- **System Control:** Maintain data integrity by managing facilities and bookings.  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**Technical Features:**  
+- **Role-Based Access:** Separate interfaces for regular users and administrators.  
+- **Responsive Design:** Works seamlessly on desktop, tablet, and mobile devices.
+- **Secure Authentication:** JWT-based login system with password protection  
+- **Real-time Validation:** Instant feedback on booking availability before submission.
+- **Data Integrity:** Prevents double-booking and maintains accurate capacity tracking.
 
-### Analyzing the Bundle Size
+ ---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+ ## How to run this build:
 
-### Making a Progressive Web App
+1. **Clone this repository** to your local machine:
+   ```bash
+   git clone https://github.com/JS-codev/React.git
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+2. **Install dependencies:**
+- [nodejs](https://nodejs.org/en/download)
+- react
 
-### Advanced Configuration
+3. **Navigate to root directionary:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+cd "facility-booking-app"
+```
 
-### Deployment
+4. **Run this command with `Git-Bash`:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+npm install
+npm start
+```
