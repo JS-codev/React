@@ -3,7 +3,7 @@
 
 **Build Preview (Tap on screen to view demo):**
 
-[![Calculator](https://img.youtube.com/vi/N9p64Upw8OM/0.jpg)](https://youtu.be/N9p64Upw8OM)
+[![Calculator](https://img.youtube.com/vi/N9p64Upw8OM/maxresdefault.jpg)](https://youtu.be/N9p64Upw8OM)
 
 **Web Preview:** https://online-invest-calc.netlify.app 
 
