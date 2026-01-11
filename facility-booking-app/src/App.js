@@ -728,10 +728,16 @@ export default function App() {
   };
 
   // Login/Signup View
-  if (view === 'login') {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+if (view === 'login') {
+  return (
+    <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 flex items-center justify-center p-4">
+      {/* Add group class here */}
+      <div className="group relative">
+        {/* Glow effect behind the card */}
+        <div className="absolute -inset-1.5 animate-tilt rounded-lg bg-linear-to-r from-indigo-300 to-violet-300 opacity-70 blur transition duration-2000 group-hover:opacity-100 group-hover:duration-200"></div>
+        
+        {/* Your existing card content */}
+        <div className="relative bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">SAF Facility Booking</h1>
             <p className="text-gray-600">
@@ -748,6 +754,7 @@ export default function App() {
           )}
           
           <div className="space-y-6">
+            {/* Your form content remains the same */}
             {isAuthMode === 'signup' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
@@ -806,16 +813,17 @@ export default function App() {
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  // Boss Approval View - FIX: Update time display to use formatTimePeriod
+  // Boss Approval View 
   if (view === 'approvals' && userProfile?.role === 'boss') {
     const pendingBookings = getPendingBookings();
     console.log('Boss view - Pending bookings:', pendingBookings);
     
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="flex justify-between items-center">
@@ -940,10 +948,10 @@ export default function App() {
     );
   }
 
-  // Boss Facility Management View - FIX: Update time display
+  // Boss Facility Management View  
   if (view === 'manage-facilities' && userProfile?.role === 'boss') {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="flex justify-between items-center">
@@ -1194,7 +1202,7 @@ export default function App() {
 
   // Client View
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-linear-to-r/srgb from-indigo-200 to-teal-100 p-7">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
