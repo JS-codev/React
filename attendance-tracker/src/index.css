@@ -1,13 +1,21 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import "tailwindcss";
+
+@theme {
+  /* This creates utilities like bg-brand, text-brand, border-brand */
+  --color-brand: #3b82f6;
+  --font-body: "Inter", sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  margin: 0;
+  /* Use the generated utility names with @apply */
+  @apply antialiased bg-gray-50 text-brand;
+  
+  /* Or use the raw variable if you prefer standard CSS */
+  font-family: var(--font-body);
+}
+
+/* If you want that cool radial gradient back using Tailwind 4 */
+.bg-sci-fi {
+  background: radial-gradient(#4c9c9c, #1a1f3d);
 }
