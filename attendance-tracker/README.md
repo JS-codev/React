@@ -1,6 +1,8 @@
 #### Attandance Tracker App
 
 
+[![App Demo](https://img.youtube.com/vi/4qkg1WeJAoE/maxresdefault.jpg)](https://youtu.be/4qkg1WeJAoE)
+
 - [Live build](https://nsf-attendance-tracker.netlify.app/)
 - This project was developed using React (frontend) + Tailwind CSS, and Supabase (backend).
     - Tailwind CSS is used to create a responsive and structured user interface.
