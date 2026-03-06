@@ -10,6 +10,9 @@
 - This app allows users to record, update, and manage attendance records.
     - This allows the faster timely tracking of attandence in advance. 
 
+- Added updated Features:
+    - This app now allows you to extract `.txt` format information. 
+    - Now adminstrator can add / delete personals via log in system. 
 ---
 
 #### To run this project:

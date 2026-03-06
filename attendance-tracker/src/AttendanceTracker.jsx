@@ -6,7 +6,7 @@ import "./output.css";
 const SUPABASE_URL  = process.env.REACT_APP_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-const BRANCHES = ["S1", "S2", "S3", "S4", "HQ Coy", "SPP", "Not assigned yet"];
+const BRANCHES = ["Comd Office", "S1", "S2", "S3", "S4", "HQ Coy", "SPP", "Not assigned yet"];
 const ADMIN_USERNAME = "Br WO";
 const ADMIN_PASSWORD = "29971";
 
@@ -17,16 +17,19 @@ const ALL_RANKS = [
   "3WO","2WO","1WO","MWO","SWO","CWO",
   "OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG",
   "ME1","ME2","ME3","ME4","ME5","ME6","ME7","ME8",
+  "DX1","DX2","DX3","DX4","DX5","DX6","DX7","DX8","DX9","DX10","DX11","DX12","DX13","DX14","DX15",
 ];
 
 // Classification helpers
-const COMMANDER_RANKS   = new Set(["SCT","3SG","2SG","1SG","SSG","MSG","3WO","2WO","1WO","MWO","SWO","CWO"]);
+const COMMANDER_RANKS   = new Set(["SCT","3SG","2SG","1SG","SSG","MSG","3WO","2WO","1WO","MWO","SWO","CWO","OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG"]);
 const SUPPORT_RANKS     = new Set(["PTE","LCP","CPL","CFC"]);
 const OFFICER_RANKS     = new Set(["OCT","2LT","LTA","CPT","MAJ","LTC","SLTC","COL","BG","MG","LG"]);
+const DXO_RANKS         = new Set(["DX1","DX2","DX3","DX4","DX5","DX6","DX7","DX8","DX9","DX10","DX11","DX12","DX13","DX14","DX15"]);
 
 const isOfficer       = p => (p.role||"wose") === "officer" || OFFICER_RANKS.has(p.rank);
 const isCommander     = p => COMMANDER_RANKS.has(p.rank);
 const isSupportStaff  = p => (p.role||"wose") === "wose" && SUPPORT_RANKS.has(p.rank);
+const isDXO           = p => DXO_RANKS.has(p.rank);
 const isPresent       = (p, statuses) => { const s = statuses[p.id]||"in"; return s==="in"||s==="late"||s==="duty"; };
 
 // ─── Animated Portal Select ───────────────────────────────────────────────────
@@ -197,7 +200,7 @@ function daysBetween(startISO, endISO) {
   return Math.round((e - s) / 86400000) + 1;
 }
 
-// ─── Summary generator ───────────────────────────────────────────────────────
+// ─── Summary ───────────────────────────────────────────────────────
 function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, courseStartDates, courseNames, statusTexts, permTypes, othersNotes) {
   const now  = new Date();
   const sg   = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
@@ -215,6 +218,7 @@ function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, co
   const woses         = personnel.filter(p => !isOfficer(p));
   const commanders    = personnel.filter(p => isCommander(p));
   const supportStaff  = personnel.filter(p => isSupportStaff(p));
+  const dxo           = personnel.filter(p => isDXO(p));
 
   const lines = [];
   lines.push(`HQ COY PARADE STRENGTH CAA ${dd}${mo}${yy} ${hh}${mi}HRS\n`);
@@ -222,7 +226,7 @@ function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, co
   lines.push(`Total Officer: ${officers.filter(pres).length}/${officers.length}`);
   lines.push(`Total WOSE: ${woses.filter(pres).length}/${woses.length}\n`);
   lines.push(`Total Commander: ${commanders.filter(pres).length}/${commanders.length}`);
-  lines.push(`Total Support Staff: ${supportStaff.filter(pres).length}/${supportStaff.length}\n`);
+  lines.push(`Total WOSE (PTE,LCP,CPL,CFC): ${supportStaff.filter(pres).length}/${supportStaff.length}\n`);
   lines.push(`Personnel on DB/AWOL/CC/CA: 0`);
   lines.push("-------------------------------");
 
@@ -233,19 +237,21 @@ function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, co
     const brWoses    = members.filter(p => !isOfficer(p));
     const brCmdr     = members.filter(p => isCommander(p));
     const brSupport  = members.filter(p => isSupportStaff(p));
+    const brDxos     = members.filter(p => isDXO(p));
 
     lines.push(branch.toUpperCase());
     lines.push(`TOTAL STRENGTH: ${members.filter(pres).length}/${members.length}\n`);
     if (brOfficers.length) {
       lines.push(`OFFICER: ${brOfficers.filter(pres).length}/${brOfficers.length}`);
-      brOfficers.forEach((p,i) => lines.push(`${i+1}. ${p.rank} ${p.name}${pres(p)?"✅":"❌"}\n`));
+      brOfficers.forEach((p,i) => lines.push(`${i+1}. ${p.rank} ${p.name}${pres(p)?"✅":"❌"}`));
     }
     if (brWoses.length) {
-      lines.push(`WOSE: ${brWoses.filter(pres).length}/${brWoses.length}`);
+      lines.push(`\nWOSE: ${brWoses.filter(pres).length}/${brWoses.length}`);
       brWoses.forEach((p,i) => lines.push(`${i+1}. ${p.rank} ${p.name}${pres(p)?"✅":"❌"}`));
     }
+
     lines.push(`\nCommander: ${brCmdr.filter(pres).length}/${brCmdr.length}`);
-    lines.push(`Support Staff: ${brSupport.filter(pres).length}/${brSupport.length}\n`);
+    lines.push(`WOSE (PTE,LCP,CPL,CFC): ${brSupport.filter(pres).length}/${brSupport.length}\n`);
     lines.push("-------------------------------");
   });
 
@@ -666,14 +672,14 @@ export default function AttendanceTracker() {
                 <AnimatedSelect options={BRANCHES.map(b=>({value:b,label:b}))} value={newBranch}
                   onChange={setNewBranch} placeholder="Select Branch" />
                 <div className="flex gap-2">
-                  {[{v:"wose",icon:"🪖",label:"WOSE"},{v:"officer",icon:"👑",label:"Officer"}].map(opt => (
+                  {[{v:"wose", label:"WOSE"},{v:"officer", label:"Officer"}].map(opt => (
                     <button key={opt.v} onClick={() => setNewRole(opt.v)}
                       className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${
                         newRole===opt.v
                           ? opt.v==="officer" ? "bg-yellow-500/25 border-yellow-400/40 text-yellow-300" : "bg-blue-500/25 border-blue-400/40 text-blue-300"
                           : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10"
                       }`}>
-                      {opt.icon} {opt.label}
+                      {opt.label}
                     </button>
                   ))}
                 </div>
@@ -714,7 +720,7 @@ export default function AttendanceTracker() {
                   {officers.length > 0 && (
                     <div className="space-y-3">
                       <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-yellow-400/60">
-                        <span className="text-yellow-400/80">👑</span>
+                        <span className="text-yellow-400/80"></span>
                         <span>Officer</span>
                         <div className="h-px flex-1 bg-linear-to-r from-yellow-500/20 to-transparent" />
                         <span className="text-yellow-400/40 shrink-0">{officers.filter(p=>isPresent(p,statuses)).length}/{officers.length}</span>
@@ -739,7 +745,7 @@ export default function AttendanceTracker() {
                   {woses.length > 0 && (
                     <div className="space-y-3">
                       <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-blue-400/50">
-                        <span className="text-blue-400/70">🪖</span>
+                        <span className="text-blue-400/70"></span>
                         <span>WOSE</span>
                         <div className="h-px flex-1 bg-linear-to-r from-blue-500/20 to-transparent" />
                         <span className="text-blue-400/40 shrink-0">{woses.filter(p=>isPresent(p,statuses)).length}/{woses.length}</span>
