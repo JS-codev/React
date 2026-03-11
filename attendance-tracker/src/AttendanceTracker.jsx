@@ -739,7 +739,7 @@ export default function AttendanceTracker() {
     <div className="min-h-screen bg-[#050d1a] text-slate-200 font-sans pb-20 overflow-x-hidden">
       <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(0,80,160,0.5)_0%,transparent_55%)]" />
       {/* <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_90%,rgba(0,110,255,0.2)_0%,transparent_60%)]" /> */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_90%,rgba(255,220,80,0.25)_0%,rgba(255,220,80,0.12)_22%,transparent_75%)]" />
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_10%,rgba(255,220,80,0.25)_0%,rgba(255,220,80,0.12)_0.1%,transparent_90%)]" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
 
