@@ -370,7 +370,6 @@ export default function App() {
         return;
       }
       
-
       // Enrich bookings with facility and user info
       const enrichedBookings = await Promise.all(
         bookingsData.map(async (booking) => {

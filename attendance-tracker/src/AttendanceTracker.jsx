@@ -6,7 +6,7 @@ import "./output.css";
 const SUPABASE_URL  = process.env.REACT_APP_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-const BRANCHES = ["Comd Office", "S1", "S2", "S3", "S4", "HQ Coy", "SPP", "Not assigned yet"];
+const BRANCHES = ["Comd Office", "S1", "S2", "S3", "S4", "HQ Coy", "SPP", "MED CELL", "Not assigned yet"];
 const ADMIN_USERNAME = "Br WO";
 const ADMIN_PASSWORD = "29971";
 
@@ -30,7 +30,7 @@ const isOfficer       = p => (p.role||"wose") === "officer" || OFFICER_RANKS.has
 const isCommander     = p => COMMANDER_RANKS.has(p.rank);
 const isSupportStaff  = p => (p.role||"wose") === "wose" && SUPPORT_RANKS.has(p.rank);
 const isDXO           = p => DXO_RANKS.has(p.rank);
-const isPresent       = (p, statuses) => { const s = statuses[p.id]||"in"; return s==="in"||s==="late"||s==="duty"; };
+const isPresent       = (p, statuses) => { const s = statuses[p.id]||"pending"; return s==="in"}; // || s === "late" || s === "duty"; };   <- uncomment this to let late and duty to become present instead of being absent. 
 
 // ─── Animated Portal Select ───────────────────────────────────────────────────
 const AnimatedSelect = ({ options, value, onChange, placeholder = "Select...", customStyles = "" }) => {
@@ -172,15 +172,23 @@ async function supabaseFetch(path, options = {}) {
   return res.json();
 }
 
+// ─── Today's date key (SGT YYYY-MM-DD) used for daily status reset ───────────
+function todaySGT() {
+  const now = new Date();
+  const sg  = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+  return `${sg.getFullYear()}-${String(sg.getMonth()+1).padStart(2,"0")}-${String(sg.getDate()).padStart(2,"0")}`;
+}
+
 // ─── Status options ───────────────────────────────────────────────────────────
 const STATUS_OPTIONS = [
-  { value:"in",     label:"✅ In",                  color:"bg-emerald-500/20", glow:"shadow-[0_0_12px_rgba(52,211,153,0.4)]"  },
-  { value:"late",   label:"🕐 Late",                color:"bg-amber-500/20",  glow:"shadow-[0_0_12px_rgba(251,191,36,0.4)]"  },
-  { value:"duty",   label:"🚨 On Duty",             color:"bg-orange-500/20", glow:"shadow-[0_0_12px_rgba(249,115,22,0.4)]"  },
-  { value:"course", label:"👨‍🎓 On Course until...", color:"bg-sky-500/20",    glow:"shadow-[0_0_12px_rgba(14,165,233,0.4)]"  },
-  { value:"rso",    label:"📋 RSO / RSI until...",  color:"bg-violet-500/20", glow:"shadow-[0_0_12px_rgba(139,92,246,0.4)]"  },
-  { value:"mc",     label:"🏥 MC until...",          color:"bg-red-500/20",    glow:"shadow-[0_0_12px_rgba(239,68,68,0.4)]"   },
-  { value:"others", label:"📝 Others",               color:"bg-slate-500/20",  glow:"shadow-[0_0_12px_rgba(100,116,139,0.4)]" },
+  { value:"pending", label:"— Haven't selected yet today —", color:"bg-white/5",       glow:""                                                                   },
+  { value:"in",     label:"✅ In",                           color:"bg-emerald-500/20", glow:"shadow-[0_0_12px_rgba(52,211,153,0.4)]"  },
+  { value:"late",   label:"🕐 Late",                         color:"bg-amber-500/20",   glow:"shadow-[0_0_12px_rgba(251,191,36,0.4)]"  },
+  { value:"duty",   label:"🚨 On Duty",                      color:"bg-orange-500/20",  glow:"shadow-[0_0_12px_rgba(249,115,22,0.4)]"  },
+  { value:"course", label:"👨‍🎓 On Course until...",          color:"bg-sky-500/20",     glow:"shadow-[0_0_12px_rgba(14,165,233,0.4)]"  },
+  { value:"rso",    label:"📋 RSO / RSI until...",           color:"bg-violet-500/20",  glow:"shadow-[0_0_12px_rgba(139,92,246,0.4)]"  },
+  { value:"mc",     label:"🏥 MC until...",                   color:"bg-red-500/20",     glow:"shadow-[0_0_12px_rgba(239,68,68,0.4)]"   },
+  { value:"others", label:"📝 Others",                        color:"bg-slate-500/20",   glow:"shadow-[0_0_12px_rgba(100,116,139,0.4)]" },
 ];
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -349,10 +357,23 @@ function generateSummary(personnel, statuses, mcDates, rsoDates, courseDates, co
 function PersonnelCard({ p, isAdmin, status, mcDate, rsoDate, courseDate, courseStartDate, courseName,
   statusText, permType, othersNote,
   onStatusChange, onMcDate, onRsoDate, onCourseDate, onCourseStartDate, onCourseName,
-  onStatusText, onPermType, onOthersNote, onDelete }) {
+  onStatusText, onPermType, onOthersNote, onDelete,
+  dragHandleProps,
+  onEditSave,
+}) {
+
+  const [editing,   setEditing]   = useState(false);
+  const [editRank,  setEditRank]  = useState(p.rank);
+  const [editName,  setEditName]  = useState(p.name);
 
   const cur = STATUS_OPTIONS.find(o => o.value === status) || STATUS_OPTIONS[0];
   const hasBadge = statusText || (status==="others" && othersNote);
+
+  function saveEdit() {
+    if (!editName.trim()) return;
+    onEditSave(p.id, editRank, editName.trim());
+    setEditing(false);
+  }
 
   return (
     <div className={`relative rounded-xl border border-white/5 bg-white/3 backdrop-blur-sm transition-all hover:border-white/15 ${cur.glow}`}>
@@ -360,8 +381,46 @@ function PersonnelCard({ p, isAdmin, status, mcDate, rsoDate, courseDate, course
 
         {/* Identity */}
         <div className="flex items-center gap-3 pt-0.5">
-          <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase shrink-0">{p.rank}</span>
-          <span className="text-base font-medium tracking-tight text-slate-100">{p.name}</span>
+          {/* Drag handle — admin only */}
+          {isAdmin && (
+            <div {...dragHandleProps}
+              className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-400 shrink-0 px-0.5 select-none"
+              title="Drag to reorder">
+              ⠿
+            </div>
+          )}
+
+          {editing ? (
+            <div className="flex items-center gap-2 flex-1 flex-wrap">
+              <AnimatedSelect
+                options={ALL_RANKS.map(r => ({ value:r, label:r }))}
+                value={editRank}
+                onChange={setEditRank}
+                placeholder="Rank"
+                customStyles="!w-24 text-xs"
+              />
+              <input
+                className="flex-1 min-w-24 bg-black/20 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500/50"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                onKeyDown={e => { if (e.key==="Enter") saveEdit(); if (e.key==="Escape") setEditing(false); }}
+                autoFocus
+              />
+              <button onClick={saveEdit} className="px-2 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase">Save</button>
+              <button onClick={() => setEditing(false)} className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase">Cancel</button>
+            </div>
+          ) : (
+            <>
+              <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] font-bold text-blue-400 uppercase shrink-0">{p.rank}</span>
+              <span className="text-base font-medium tracking-tight text-slate-100">{p.name}</span>
+              {isAdmin && (
+                <button onClick={() => { setEditRank(p.rank); setEditName(p.name); setEditing(true); }}
+                  className="ml-1 p-1 rounded text-slate-600 hover:text-blue-400 transition-colors shrink-0 text-xs" title="Edit rank / name">
+                  ✏️
+                </button>
+              )}
+            </>
+          )}
         </div>
 
         {/* Controls */}
@@ -486,6 +545,10 @@ export default function AttendanceTracker() {
   const [showLogin,  setShowLogin]  = useState(false);
   const [showAdmin,  setShowAdmin]  = useState(false);
 
+  // drag state
+  const dragItem    = useRef(null);
+  const dragOverItem= useRef(null);
+
   // add-form state
   const [newRank,   setNewRank]   = useState("PTE");
   const [newName,   setNewName]   = useState("");
@@ -497,11 +560,11 @@ export default function AttendanceTracker() {
   // ── fetch ──────────────────────────────────────────────────────────────────
   async function fetchPersonnel() {
     try {
-      const data = await supabaseFetch("personnel?select=*&order=created_at.asc");
+      const data = await supabaseFetch("personnel?select=*&order=sort_order.asc,created_at.asc");
       setPersonnel(data);
       const iS={},iM={},iR={},iC={},iCS={},iCN={},iT={},iP={},iO={};
       data.forEach(p => {
-        iS[p.id]  = p.status              || "in";
+        iS[p.id]  = p.status              || "pending";
         iM[p.id]  = p.mc_end_date         || "";
         iR[p.id]  = p.rso_end_date        || "";
         iC[p.id]  = p.course_end_date     || "";
@@ -547,12 +610,12 @@ export default function AttendanceTracker() {
     try {
       const data = await supabaseFetch("personnel", {
         method:"POST",
-        body: JSON.stringify({ rank:newRank, name:newName.trim(), branch:newBranch, role:newRole, status:"in" }),
+        body: JSON.stringify({ rank:newRank, name:newName.trim(), branch:newBranch, role:newRole, status:"pending" }),
       });
       const np = data[0];
       setPersonnel(prev => [...prev, np]);
       ["statuses","statusTexts","permTypes","othersNotes"].forEach(() => {});
-      setStatuses(p=>({...p,[np.id]:"in"})); setStatusTexts(p=>({...p,[np.id]:""}));
+      setStatuses(p=>({...p,[np.id]:"pending"})); setStatusTexts(p=>({...p,[np.id]:""}));
       setPermTypes(p=>({...p,[np.id]:""}));  setOthersNotes(p=>({...p,[np.id]:""}));
       setCourseNames(p=>({...p,[np.id]:""})); setCourseStartDates(p=>({...p,[np.id]:""}));
       setNewName(""); setNewRank("PTE"); setNewRole("wose");
@@ -564,6 +627,91 @@ export default function AttendanceTracker() {
     try { await supabaseFetch(`personnel?id=eq.${id}`,{method:"DELETE"}); setPersonnel(prev=>prev.filter(p=>p.id!==id)); }
     catch(e) { console.error(e); }
     setDeleteId(null);
+  }
+
+  // ── Midnight daily reset (statuses → "pending") ────────────────────────────
+  useEffect(() => {
+    // Check once on load: if stored date ≠ today, reset all statuses to "pending"
+    const stored = localStorage.getItem("attendance_date");
+    const today  = todaySGT();
+    if (stored && stored !== today) {
+      // Reset all in-memory statuses to pending
+      setStatuses(prev => {
+        const next = { ...prev };
+        Object.keys(next).forEach(id => { next[id] = "pending"; });
+        return next;
+      });
+      // Batch-reset in Supabase — update all personnel status to pending
+      supabaseFetch("personnel?status=neq.pending", {
+        method: "PATCH",
+        body: JSON.stringify({ status: "pending" }),
+      }).catch(console.error);
+    }
+    localStorage.setItem("attendance_date", today);
+
+    // Schedule a timer for exactly midnight SGT
+    function scheduleReset() {
+      const now  = new Date();
+      const sg   = new Date(now.getTime() + now.getTimezoneOffset()*60000 + 8*3600000);
+      const msUntilMidnight = (
+        (23 - sg.getHours()) * 3600000 +
+        (59 - sg.getMinutes()) * 60000 +
+        (60 - sg.getSeconds()) * 1000
+      );
+      return setTimeout(() => {
+        setStatuses(prev => {
+          const next = { ...prev };
+          Object.keys(next).forEach(id => { next[id] = "pending"; });
+          return next;
+        });
+        supabaseFetch("personnel", {
+          method: "PATCH",
+          body: JSON.stringify({ status: "pending" }),
+        }).catch(console.error);
+        localStorage.setItem("attendance_date", todaySGT());
+        scheduleReset(); // reschedule for next midnight
+      }, msUntilMidnight);
+    }
+    const t = scheduleReset();
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Inline edit (rank + name) ──────────────────────────────────────────────
+  async function handleEditSave(id, rank, name) {
+    setPersonnel(prev => prev.map(p => p.id===id ? { ...p, rank, name } : p));
+    try { await supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify({ rank, name }) }); }
+    catch(e) { console.error(e); }
+  }
+
+  // ── Drag-to-reorder (within same role-group within same branch) ────────────
+  function handleDragStart(id, groupKey) {
+    dragItem.current = { id, groupKey };
+  }
+  function handleDragEnter(id, groupKey) {
+    dragOverItem.current = { id, groupKey };
+  }
+  function handleDragEnd() {
+    const from = dragItem.current;
+    const to   = dragOverItem.current;
+    if (!from || !to || from.id === to.id || from.groupKey !== to.groupKey) {
+      dragItem.current = null; dragOverItem.current = null; return;
+    }
+    setPersonnel(prev => {
+      const next = [...prev];
+      const fromIdx = next.findIndex(p => p.id === from.id);
+      const toIdx   = next.findIndex(p => p.id === to.id);
+      if (fromIdx === -1 || toIdx === -1) return prev;
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      // Persist sort order: assign sequential sort_order within the new array
+      const updates = next.map((p, i) => ({ id: p.id, sort_order: i }));
+      updates.forEach(({ id, sort_order }) => {
+        supabaseFetch(`personnel?id=eq.${id}`, { method:"PATCH", body:JSON.stringify({ sort_order }) }).catch(console.error);
+      });
+      return next;
+    });
+    dragItem.current = null; dragOverItem.current = null;
   }
 
   // ── extract ────────────────────────────────────────────────────────────────
@@ -589,7 +737,9 @@ export default function AttendanceTracker() {
   // ── render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#050d1a] text-slate-200 font-sans pb-20 overflow-x-hidden">
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(0,80,160,0.2)_0%,transparent_60%)]" />
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_20%_10%,rgba(0,80,160,0.5)_0%,transparent_55%)]" />
+      {/* <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_90%,rgba(0,110,255,0.2)_0%,transparent_60%)]" /> */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_90%_90%,rgba(255,220,80,0.25)_0%,rgba(255,220,80,0.12)_22%,transparent_75%)]" />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
 
@@ -597,7 +747,7 @@ export default function AttendanceTracker() {
         <div className="flex justify-between items-center mb-4">
           <button onClick={handleExtract}
             className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-bold tracking-widest uppercase hover:bg-emerald-500/20 transition-all">
-            📄 Extract CAA
+            📄 Extraction
           </button>
           {isAdmin ? (
             <button onClick={() => { setIsAdmin(false); setShowAdmin(false); }}
@@ -727,15 +877,25 @@ export default function AttendanceTracker() {
                       </h3>
                       <div className="grid gap-3 pl-4 border-l border-yellow-500/10">
                         {officers.map(p => (
-                          <PersonnelCard key={p.id} p={p} isAdmin={isAdmin}
-                            status={statuses[p.id]||"in"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
-                            courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
-                            courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
-                            permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
-                            onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
-                            onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
-                            onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
-                            onDelete={id=>setDeleteId(id)} />
+                          <div key={p.id}
+                            draggable={isAdmin}
+                            onDragStart={() => handleDragStart(p.id, `${branch}-officer`)}
+                            onDragEnter={() => handleDragEnter(p.id, `${branch}-officer`)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={e => e.preventDefault()}
+                            style={isAdmin ? { cursor:"grab" } : {}}>
+                            <PersonnelCard p={p} isAdmin={isAdmin}
+                              status={statuses[p.id]||"pending"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
+                              courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
+                              courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
+                              permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
+                              onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
+                              onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
+                              onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
+                              onDelete={id=>setDeleteId(id)}
+                              dragHandleProps={{}}
+                              onEditSave={handleEditSave} />
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -752,15 +912,25 @@ export default function AttendanceTracker() {
                       </h3>
                       <div className="grid gap-3 pl-4 border-l border-blue-500/10">
                         {woses.map(p => (
-                          <PersonnelCard key={p.id} p={p} isAdmin={isAdmin}
-                            status={statuses[p.id]||"in"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
-                            courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
-                            courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
-                            permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
-                            onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
-                            onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
-                            onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
-                            onDelete={id=>setDeleteId(id)} />
+                          <div key={p.id}
+                            draggable={isAdmin}
+                            onDragStart={() => handleDragStart(p.id, `${branch}-wose`)}
+                            onDragEnter={() => handleDragEnter(p.id, `${branch}-wose`)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={e => e.preventDefault()}
+                            style={isAdmin ? { cursor:"grab" } : {}}>
+                            <PersonnelCard p={p} isAdmin={isAdmin}
+                              status={statuses[p.id]||"pending"} mcDate={mcDates[p.id]||""} rsoDate={rsoDates[p.id]||""}
+                              courseDate={courseDates[p.id]||""} courseStartDate={courseStartDates[p.id]||""}
+                              courseName={courseNames[p.id]||""} statusText={statusTexts[p.id]||""}
+                              permType={permTypes[p.id]||""} othersNote={othersNotes[p.id]||""}
+                              onStatusChange={hStatusChange} onMcDate={hMcDate} onRsoDate={hRsoDate}
+                              onCourseDate={hCourseDate} onCourseStartDate={hCourseStartDate} onCourseName={hCourseName}
+                              onStatusText={hStatusText} onPermType={hPermType} onOthersNote={hOthersNote}
+                              onDelete={id=>setDeleteId(id)}
+                              dragHandleProps={{}}
+                              onEditSave={handleEditSave} />
+                          </div>
                         ))}
                       </div>
                     </div>

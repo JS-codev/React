@@ -1,7 +1,7 @@
 #### Attandance Tracker App
 
 
-[![App Demo](https://img.youtube.com/vi/4qkg1WeJAoE/maxresdefault.jpg)](https://youtu.be/4qkg1WeJAoE)
+[![App Demo](https://img.youtube.com/vi/gqPlc4hhKcM/maxresdefault.jpg)](https://youtu.be/gqPlc4hhKcM?si=eRiSY8Sp0WbcH_YL)
 
 - [Live build](https://nsf-attendance-tracker.netlify.app/)
 - This project was developed using React (frontend) + Tailwind CSS, and Supabase (backend).
@@ -12,7 +12,9 @@
 
 - Added updated Features:
     - This app now allows you to extract `.txt` format information. 
-    - Now adminstrator can add / delete personals via log in system. 
+    - Now adminstrator can add / delete / hold drag name card personals to change position via log in system. 
+    - Improved Design for better visibility. 
+
 ---
 
 #### To run this project:
